@@ -1,0 +1,120 @@
+{
+  "pacientes": [
+    {
+      "nombre": "jhon",
+      "apellido": "botero",
+      "edad": "37 años",
+      "sc": "2.17",
+      "tiss": "10",
+      "historiaClinica": "1122647161",
+      "sexo": "masculino",
+      "apache": "0",
+      "tipoUCI": "adulto",
+      "peso": "100",
+      "talla": "177",
+      "eps": "famisanar",
+      "cama": "3",
+      "fechaIngreso": "2025-08-03",
+      "fechaActual": "2025-08-07",
+      "diasEstancia": "4",
+      "diagnosticos": [
+        "pereza"
+      ],
+      "problemas": "",
+      "enfermeroJefe": {
+        "manana": "viviana",
+        "tarde": "angy",
+        "noche": ""
+      },
+      "hb": "1",
+      "hto": "2",
+      "leuc": "3",
+      "neut": "4",
+      "linf": "",
+      "cay": "5",
+      "plaq": "6",
+      "bun": "7",
+      "creat": "8",
+      "glicemia": "9",
+      "na": "10",
+      "k": "11",
+      "cl": "12",
+      "ca": "13",
+      "mg": "14",
+      "pt": "15",
+      "ptt": "16",
+      "inr": "17",
+      "rx": "18",
+      "cultivos": "19",
+      "hemo": "20",
+      "uro": "21",
+      "ekg": "22",
+      "pdeo": "23",
+      "medicamentosInfusion": [
+        {
+          "nombre": "pipirona",
+          "dosis": "1 gramo"
+        }
+      ],
+      "medicamentosHorarios": [
+        {
+          "fechaInicio": "2025-08-01",
+          "nombre": "acetaminofen",
+          "horas": "8-12-18",
+          "dosis": "500mg",
+          "via": "oral",
+          "manana": "juan",
+          "tarde": "",
+          "noche": ""
+        }
+      ],
+      "dosisUnica": [
+        {
+          "hora": "18:00",
+          "nombre": "insulina",
+          "dosis": "14 unidades",
+          "via": "sc",
+          "ordenadoPor": " dra camila",
+          "hospitalariamente": "si"
+        },
+        {
+          "hora": "00:00",
+          "nombre": "vasopresina",
+          "dosis": "2 unidades",
+          "via": "iv",
+          "ordenadoPor": "diego",
+          "hospitalariamente": "si"
+        }
+      ],
+      "id": "393e"
+    },
+    {
+      "id": "a2c8",
+      "nombre": "jhon",
+      "apellido": "botero",
+      "edad": "37 años",
+      "sc": "0.08",
+      "tiss": "14",
+      "historiaClinica": "1122647161",
+      "sexo": "masculino",
+      "apache": "6",
+      "tipoUCI": "intermedio",
+      "peso": "100",
+      "talla": "1.77",
+      "eps": "famisanar",
+      "cama": "",
+      "fechaIngreso": "2025-08-03",
+      "fechaActual": "2025-08-06",
+      "diasEstancia": "3",
+      "diagnosticos": [
+        "flojera"
+      ],
+      "problemas": "",
+      "enfermeroJefe": {
+        "manana": "jhon",
+        "tarde": "walter",
+        "noche": "perrito"
+      }
+    }
+  ]
+}
