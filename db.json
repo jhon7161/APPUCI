@@ -89,7 +89,6 @@
       "id": "393e"
     },
     {
-      "id": "a2c8",
       "nombre": "jhon",
       "apellido": "botero",
       "edad": "37 años",
@@ -114,7 +113,35 @@
         "manana": "jhon",
         "tarde": "walter",
         "noche": "perrito"
-      }
+      },
+      "hb": "6",
+      "hto": "6",
+      "leuc": "6",
+      "neut": "6",
+      "linf": "6",
+      "cay": "6",
+      "plaq": "6",
+      "bun": "",
+      "creat": "",
+      "glicemia": "",
+      "na": "",
+      "k": "",
+      "cl": "",
+      "ca": "",
+      "mg": "",
+      "pt": "",
+      "ptt": "",
+      "inr": "",
+      "rx": "r",
+      "cultivos": "t",
+      "hemo": "y",
+      "uro": "t",
+      "ekg": "",
+      "pdeo": "",
+      "medicamentosInfusion": [],
+      "medicamentosHorarios": [],
+      "dosisUnica": [],
+      "id": "a2c8"
     }
   ]
 }

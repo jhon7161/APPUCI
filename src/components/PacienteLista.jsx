@@ -9,7 +9,7 @@ import {
   eliminarPacienteStore
 } from '../reducers/pacienteSlice'
 
-export default function PacienteLista() {
+export default function PacienteLista({ onCargarPaciente }) {
   const dispatch = useDispatch()
   const pacientes = useSelector(state => state.pacientes)
 
@@ -31,7 +31,8 @@ export default function PacienteLista() {
         {pacientes.map(p => (
           <li key={p.id}>
             {p.nombre} {p.apellido} ({p.historiaClinica}) - {p.fechaActual}
-            <button onClick={() => handleDelete(p.id)}>Eliminar</button>
+            <button onClick={() => handleDelete(p.id)}>Eliminar</button>{' '}
+            <button onClick={() => onCargarPaciente && onCargarPaciente(p)}>Cargar</button>
           </li>
         ))}
       </ul>
