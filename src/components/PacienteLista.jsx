@@ -8,6 +8,7 @@ import {
   setPacientes,
   eliminarPacienteStore
 } from '../reducers/pacienteSlice'
+import { notifyWithTimeout } from '../reducers/notificationReducer'
 
 export default function PacienteLista({ onCargarPaciente }) {
   const dispatch = useDispatch()
@@ -21,6 +22,7 @@ export default function PacienteLista({ onCargarPaciente }) {
     if (confirm('¿Estás seguro de eliminar este paciente?')) {
       await eliminarPaciente(id)
       dispatch(eliminarPacienteStore(id))
+      dispatch(notifyWithTimeout('Paciente eliminado', 3000))
     }
   }
 
