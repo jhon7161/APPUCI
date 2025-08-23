@@ -22,7 +22,7 @@ import MedicamentosHorarios from './MedicamentosHorarios'
 import DosisUnica from './DosisUnica'
 
 
-// 🔹 Aquí importas los componentes de las hojas extra
+// Hojas extra
 import ComponenteHoja2 from '../hoja2/controldeliquidos'
 import ComponenteHoja3 from '../HOJA3/ComponenteHoja3'
 import ComponenteHoja4 from '../HOJA4/ComponenteHoja4'
@@ -63,23 +63,12 @@ const getFormInicial = (camaId = '') => ({
   medicamentosInfusion: [],
   medicamentosHorarios: [],
   dosisUnica: [],
-  hoja2: {
-    administrados: Array.from({ length: 4 }, () => ({ nombre: '', dosis: Array(24).fill('') })),
-    eliminados: {
-      diuresisHora: Array(24).fill(''),
-      otros: [
-        { nombre: '', valores: Array(24).fill('') },
-        { nombre: '', valores: Array(24).fill('') }
-      ]
-    }
-  },
-
+  hoja2: { administrados: Array.from({ length: 4 }, () => ({ nombre: '', dosis: Array(24).fill('') })), eliminados: { diuresisHora: Array(24).fill(''), otros: [{ nombre: '', valores: Array(24).fill('') }, { nombre: '', valores: Array(24).fill('') }] } },
   hoja3: { datos: Array(24).fill({}) },
   hoja4: { datos: Array(24).fill({}) },
   hoja5: { datos: Array(24).fill({}) },
   hoja6: { datos: Array(24).fill({}) },
 })
-
 
 const calcularSC = (peso, tallaMetros) => {
   const p = parseFloat(peso)
@@ -98,27 +87,24 @@ const calcularDiasEstancia = (fechaIngreso, fechaActual) => {
 const PacienteForm = ({ pacienteCargado }) => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const { camaId } = useParams()
-
+  const { camaId } = useParams();
+  const [form, setForm] = useState(getFormInicial(camaId));
   const [historiaClinica, setHistoriaClinica] = useState('')
-  const [form, setForm] = useState(getFormInicial(camaId))
   const [modoEdicion, setModoEdicion] = useState(false)
   const [pacienteExistenteId, setPacienteExistenteId] = useState(null)
-
   const [pagina, setPagina] = useState(1)
-
   useEffect(() => {
-    if (pacienteCargado) {
-      setForm(prev => ({
-        ...getFormInicial(camaId),
-        ...pacienteCargado,
-        cama: camaId
-      }))
-      setModoEdicion(true)
-      setPacienteExistenteId(pacienteCargado.id ?? null)
-      setHistoriaClinica(pacienteCargado.historiaClinica ?? '')
-    }
-  }, [pacienteCargado, camaId])
+  if (pacienteCargado) {
+    setForm(prev => ({
+      ...getFormInicial(camaId),
+      ...pacienteCargado,
+      cama: camaId || pacienteCargado.cama || ''
+    }));
+  }
+}, [pacienteCargado, camaId]);
+
+
+
 
   useEffect(() => {
     if (!historiaClinica.trim()) {
@@ -127,22 +113,16 @@ const PacienteForm = ({ pacienteCargado }) => {
       setModoEdicion(false)
       return
     }
-
     const fetchPaciente = async () => {
       try {
         const pacientesPorHistoria = await getPacientePorHistoria(historiaClinica)
         if (pacientesPorHistoria.length === 0) {
-          setForm(prev => ({
-            ...getFormInicial(camaId),
-            historiaClinica
-          }))
+          setForm(prev => ({ ...getFormInicial(camaId), historiaClinica }))
           setPacienteExistenteId(null)
           setModoEdicion(false)
           return
         }
-
         const registroActual = pacientesPorHistoria.find(p => p.fechaActual === form.fechaActual)
-
         if (registroActual) {
           setForm({ ...getFormInicial(camaId), ...registroActual, cama: camaId })
           setPacienteExistenteId(registroActual.id)
@@ -163,10 +143,8 @@ const PacienteForm = ({ pacienteCargado }) => {
             fechaActual: form.fechaActual,
             cama: camaId
           }
-
           base.sc = calcularSC(base.peso, base.talla)
           base.diasEstancia = calcularDiasEstancia(base.fechaIngreso, base.fechaActual)
-
           setForm(base)
           setPacienteExistenteId(null)
           setModoEdicion(false)
@@ -175,7 +153,6 @@ const PacienteForm = ({ pacienteCargado }) => {
         console.error('Error al cargar paciente:', error)
       }
     }
-
     fetchPaciente()
   }, [historiaClinica, form.fechaActual, camaId])
 
@@ -183,16 +160,11 @@ const PacienteForm = ({ pacienteCargado }) => {
     const { name, value } = e.target
     setForm(prev => {
       const actualizado = { ...prev, [name]: value }
-
-      if (name === 'peso' || name === 'talla') {
-        actualizado.sc = calcularSC(actualizado.peso, actualizado.talla)
-      }
-      if (name === 'fechaIngreso' || name === 'fechaActual') {
-        actualizado.diasEstancia = calcularDiasEstancia(
-          name === 'fechaIngreso' ? value : prev.fechaIngreso,
-          name === 'fechaActual' ? value : prev.fechaActual
-        )
-      }
+      if (name === 'peso' || name === 'talla') actualizado.sc = calcularSC(actualizado.peso, actualizado.talla)
+      if (name === 'fechaIngreso' || name === 'fechaActual') actualizado.diasEstancia = calcularDiasEstancia(
+        name === 'fechaIngreso' ? value : prev.fechaIngreso,
+        name === 'fechaActual' ? value : prev.fechaActual
+      )
       return actualizado
     })
   }, [])
@@ -222,30 +194,18 @@ const PacienteForm = ({ pacienteCargado }) => {
   }
 
   const NavHojas = () => (
-    <div style={{
-      display: 'flex', gap: 8, flexWrap: 'wrap', margin: '16px 0'
-    }}>
-      {[1, 2, 3, 4, 5, 6].map(n => (
-        <button
-          key={n}
-          type="button"
-          onClick={() => setPagina(n)}
-          style={{
-            padding: '6px 10px',
-            borderRadius: 8,
-            border: '1px solid #007bff',
-            background: pagina === n ? '#007bff' : 'white',
-            color: pagina === n ? 'white' : '#007bff',
-            cursor: 'pointer'
-          }}
-        >
+    <div className="nav-hojas">
+      {[1,2,3,4,5,6].map(n => (
+        <button key={n} type="button" onClick={() => setPagina(n)} className={pagina===n?'activo':''}>
           {`Hoja ${n}`}
         </button>
       ))}
     </div>
   )
 
-  return (
+  // src/components/PacienteForm.jsx
+return (
+  <div className="paciente-form-wrapper"> {/* Contenedor azul */}
     <form onSubmit={handleSubmit} className="formulario-paciente">
       <div className="form-header">
         <div className="header-left">Clínica</div>
@@ -255,60 +215,40 @@ const PacienteForm = ({ pacienteCargado }) => {
 
       <h2>{modoEdicion ? 'Editar paciente del día' : `Nuevo registro - Cama ${camaId}`}</h2>
 
-      <div>
+      <div className="input-group">
         <label htmlFor="historiaClinica">Historia Clínica:</label>
-        <input
-          id="historiaClinica"
-          name="historiaClinica"
-          value={historiaClinica}
-          onChange={handleChangeHistoria}
-          required
-          placeholder="Ingrese número de historia clínica"
-          autoComplete="off"
-        />
+        <input id="historiaClinica" name="historiaClinica" value={historiaClinica} onChange={handleChangeHistoria} required placeholder="Ingrese número de historia clínica" autoComplete="off" />
       </div>
 
       <NavHojas />
 
-      {pagina === 1 && (
-        <>
-          <DatosBasicos form={form} onChange={handleChange} />
-          <TipoUci form={form} onChange={handleChange} />
-          <FechasEstancia form={form} onChange={handleChange} />
-          <DiagnosticosProblemas form={form} setForm={setForm} />
-          <LaboratoriosEstudios form={form} setForm={setForm} />
-          <MedicamentosInfusion form={form} setForm={setForm} />
-          <MedicamentosHorarios form={form} setForm={setForm} />
-          <DosisUnica form={form} setForm={setForm} />
-        </>
-      )}
+      {pagina === 1 && <div className="pagina1">
+  <DatosBasicos form={form} onChange={handleChange} />
+  <TipoUci form={form} onChange={handleChange} camaId={camaId} />
+  <FechasEstancia form={form} onChange={handleChange} />
+  <DiagnosticosProblemas form={form} setForm={setForm} />
+  <LaboratoriosEstudios form={form} setForm={setForm} />
+  <MedicamentosInfusion form={form} setForm={setForm} />
+  <MedicamentosHorarios form={form} setForm={setForm} />
+  <DosisUnica form={form} setForm={setForm} />
+</div>}
 
-      {pagina === 2 && <ComponenteHoja2 form={form} setForm={setForm} />}
-      {pagina === 3 && <ComponenteHoja3 form={form} setForm={setForm} />}
-      {pagina === 4 && <ComponenteHoja4 form={form} setForm={setForm} />}
-      {pagina === 5 && <ComponenteHoja5 form={form} setForm={setForm} />}
-      {pagina === 6 && <ComponenteHoja6 form={form} setForm={setForm} />}
+{pagina === 2 && <div className="pagina2"><ComponenteHoja2 form={form} setForm={setForm} /></div>}
+{pagina === 3 && <div className="pagina3"><ComponenteHoja3 form={form} setForm={setForm} /></div>}
+{pagina === 4 && <div className="pagina4"><ComponenteHoja4 form={form} setForm={setForm} /></div>}
+{pagina === 5 && <div className="pagina5"><ComponenteHoja5 form={form} setForm={setForm} /></div>}
+{pagina === 6 && <div className="pagina6"><ComponenteHoja6 form={form} setForm={setForm} /></div>}
 
-      <div style={{ marginTop: 20, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-        {pagina > 1 && (
-          <button type="button" onClick={() => setPagina(p => p - 1)}>
-            Anterior
-          </button>
-        )}
-        {pagina < 6 && (
-          <button type="button" onClick={() => setPagina(p => p + 1)}>
-            Siguiente
-          </button>
-        )}
-        <button type="submit">
-          {modoEdicion ? 'Actualizar' : 'Guardar'}
-        </button>
-        <button type="button" onClick={() => navigate('/')} style={{ marginLeft: 10 }}>
-          Volver
-        </button>
+
+      <div className="botones-navegacion">
+        {pagina > 1 && <button type="button" onClick={() => setPagina(p => p-1)}>Anterior</button>}
+        {pagina < 6 && <button type="button" onClick={() => setPagina(p => p+1)}>Siguiente</button>}
+        <button type="submit">{modoEdicion?'Actualizar':'Guardar'}</button>
+        <button type="button" onClick={() => navigate('/')} style={{marginLeft:10}}>Volver</button>
       </div>
     </form>
-  )
+  </div>
+)
 }
 
 export default PacienteForm

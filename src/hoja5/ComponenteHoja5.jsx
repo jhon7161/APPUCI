@@ -1,6 +1,5 @@
 // src/components/ComponenteHoja5.jsx
-import React, { useState } from "react";
-import "./hoja5.css";
+import React from "react";
 import InsumosForm from "./InsumosForm";
 
 const CONVENCIONES = [
@@ -62,11 +61,7 @@ const SelectConvencion = ({ value, onChange }) => (
 const CeldaProcedimiento = ({ activo, onToggle }) => (
   <td
     onClick={onToggle}
-    style={{
-      cursor: "pointer",
-      background: activo ? "lightgreen" : "",
-      textAlign: "center",
-    }}
+    style={{ cursor: "pointer", background: activo ? "lightgreen" : "", textAlign: "center" }}
   >
     {activo ? "✔" : ""}
   </td>
@@ -79,7 +74,7 @@ const FilaGlucometria = ({ label, campo, data, onChange }) => (
       <td key={g.hora}>
         <input
           type="number"
-          value={g[campo]}
+          value={g[campo] || ""}
           onChange={(e) => onChange(idx, campo, e.target.value)}
           style={{ width: 60 }}
           placeholder={campo === "valor" ? "mg/dL" : "U"}
@@ -90,44 +85,33 @@ const FilaGlucometria = ({ label, campo, data, onChange }) => (
 );
 
 /* === Componente principal === */
-const ComponenteHoja5 = () => {
-  const [invasivos, setInvasivos] = useState(INVASIVOS_BASE);
-  const [extraData, setExtraData] = useState(
-    INVASIVOS_BASE.map(() => ({
-      fecha: "",
-      dias: "",
-      observacion: "",
-      procedimientos: { M: false, T: false, N: false },
-      convenciones: { M: "", T: "", N: "" },
-    }))
-  );
+const ComponenteHoja5 = ({ form, setForm }) => {
+  const hoja5 = form.hoja5 || {};
 
-  const [glucometrias, setGlucometrias] = useState(
-    HORAS_GLUCO.map((hora) => ({ hora, valor: "", insulina: "" }))
-  );
+  const invasivos = hoja5.invasivos || INVASIVOS_BASE;
+  const extraData = hoja5.extraData || INVASIVOS_BASE.map(() => ({
+    sitio: "",
+    fecha: "",
+    dias: "",
+    observacion: "",
+    procedimientosTexto: "",
+    procedimientos: { M: false, T: false, N: false },
+    convenciones: { M: "", T: "", N: "" },
+  }));
+  const glucometrias = hoja5.glucometrias || HORAS_GLUCO.map((hora) => ({ hora, valor: "", insulina: "" }));
+
+  const actualizarHoja5 = (nuevos) => setForm(prev => ({ ...prev, hoja5: { ...prev.hoja5, ...nuevos } }));
 
   const handleChangeConvencion = (idx, turno, value) => {
     const nuevos = [...extraData];
     nuevos[idx].convenciones[turno] = value;
-    setExtraData(nuevos);
-
     if (value === "▲") {
-      setInvasivos((prev) => [
-        ...prev.slice(0, idx + 1),
-        [invasivos[idx][0], ""],
-        ...prev.slice(idx + 1),
-      ]);
-      setExtraData((prev) => [
-        ...prev.slice(0, idx + 1),
-        {
-          fecha: "",
-          dias: "",
-          observacion: "",
-          procedimientos: { M: false, T: false, N: false },
-          convenciones: { M: "", T: "", N: "" },
-        },
-        ...prev.slice(idx + 1),
-      ]);
+      const nuevosInvasivos = [...invasivos];
+      nuevosInvasivos.splice(idx + 1, 0, [invasivos[idx][0], ""]);
+      nuevos.splice(idx + 1, 0, { sitio: "", fecha: "", dias: "", observacion: "", procedimientosTexto: "", procedimientos: { M: false, T: false, N: false }, convenciones: { M: "", T: "", N: "" } });
+      actualizarHoja5({ invasivos: nuevosInvasivos, extraData: nuevos });
+    } else {
+      actualizarHoja5({ extraData: nuevos });
     }
   };
 
@@ -140,53 +124,62 @@ const ComponenteHoja5 = () => {
       const diff = Math.floor((hoy - f) / (1000 * 60 * 60 * 24));
       nuevos[idx].dias = diff >= 0 ? diff : 0;
     }
-    setExtraData(nuevos);
+    actualizarHoja5({ extraData: nuevos });
   };
 
   const handleObs = (idx, value) => {
     const nuevos = [...extraData];
     nuevos[idx].observacion = value;
-    setExtraData(nuevos);
+    actualizarHoja5({ extraData: nuevos });
+  };
+
+  const handleSitio = (idx, value) => {
+    const nuevos = [...extraData];
+    nuevos[idx].sitio = value;
+    actualizarHoja5({ extraData: nuevos });
+  };
+
+  const handleProcedimientoTexto = (idx, value) => {
+    const nuevos = [...extraData];
+    nuevos[idx].procedimientosTexto = value;
+    actualizarHoja5({ extraData: nuevos });
   };
 
   const toggleProcedimiento = (idx, turno) => {
     const nuevos = [...extraData];
     nuevos[idx].procedimientos[turno] = !nuevos[idx].procedimientos[turno];
-    setExtraData(nuevos);
+    actualizarHoja5({ extraData: nuevos });
   };
 
   const handleGlucoChange = (idx, campo, valor) => {
     const nuevos = [...glucometrias];
     nuevos[idx][campo] = valor;
-    setGlucometrias(nuevos);
+    actualizarHoja5({ glucometrias: nuevos });
   };
 
   return (
     <div className="hoja5-wrapper" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      {/* === TABLA PRINCIPAL === */}
       <table className="hoja5-table">
         <thead>
           <tr>
-            <th>D. INVASIVOS</th>
-            <th>SITIO</th>
-            <th>M</th>
-            <th>T</th>
-            <th>N</th>
-            <th>FECHA INSERC</th>
-            <th>DIAS</th>
-            <th>OBS</th>
-            <th>PROCEDIMIENTOS</th>
-            <th>M</th>
-            <th>T</th>
-            <th>N</th>
+            <th>D. INVASIVOS</th><th>SITIO</th><th>M</th><th>T</th><th>N</th>
+            <th>FECHA INSERC</th><th>DIAS</th><th>OBS</th>
+            <th>PROCEDIMIENTOS</th><th>M</th><th>T</th><th>N</th>
           </tr>
         </thead>
         <tbody>
           {invasivos.map((row, idx) => (
             <tr key={idx}>
               <td>{row[0]}</td>
-              <td></td>
-              {["M", "T", "N"].map((turno) => (
+              <td>
+                <input
+                  type="text"
+                  value={extraData[idx]?.sitio || ""}
+                  onChange={(e) => handleSitio(idx, e.target.value)}
+                  style={{ width: 80 }} // <- ancho reducido
+                />
+              </td>
+              {["M","T","N"].map(turno => (
                 <td key={turno}>
                   <SelectConvencion
                     value={extraData[idx]?.convenciones?.[turno] || ""}
@@ -195,85 +188,48 @@ const ComponenteHoja5 = () => {
                 </td>
               ))}
               <td>
-                <input
-                  type="date"
-                  value={extraData[idx]?.fecha || ""}
-                  onChange={(e) => handleFecha(idx, e.target.value)}
-                />
+                <input type="date" value={extraData[idx]?.fecha || ""} onChange={e => handleFecha(idx, e.target.value)} />
               </td>
               <td>{extraData[idx]?.dias}</td>
               <td>
+                <input type="text" value={extraData[idx]?.observacion || ""} onChange={e => handleObs(idx, e.target.value)} />
+              </td>
+              <td>
                 <input
                   type="text"
-                  value={extraData[idx]?.observacion || ""}
-                  onChange={(e) => handleObs(idx, e.target.value)}
+                  value={extraData[idx]?.procedimientosTexto || row[1]}
+                  onChange={(e) => handleProcedimientoTexto(idx, e.target.value)}
                 />
               </td>
-              <td>{row[1]}</td>
-              {["M", "T", "N"].map((t) => (
-                <CeldaProcedimiento
-                  key={t}
-                  activo={extraData[idx]?.procedimientos?.[t]}
-                  onToggle={() => toggleProcedimiento(idx, t)}
-                />
+              {["M","T","N"].map(t => (
+                <CeldaProcedimiento key={t} activo={extraData[idx]?.procedimientos?.[t]} onToggle={() => toggleProcedimiento(idx,t)} />
               ))}
             </tr>
           ))}
-
-          {/* Convenciones al final */}
-          <tr>
-            <td colSpan="8"></td>
-            <td colSpan="4" style={{ fontWeight: "bold", textAlign: "center" }}>
-              CONVENCIONES
-            </td>
-          </tr>
-          <tr>
-            <td colSpan="8"></td>
-            {CONVENCIONES.map((c) => (
-              <td key={c.value} style={{ textAlign: "center" }}>
-                {c.label}
-              </td>
-            ))}
-          </tr>
-          <tr>
-            <td colSpan="8"></td>
-            {CONVENCIONES.map((c) => (
-              <td key={c.value} style={{ textAlign: "center" }}>
-                {c.value}
-              </td>
-            ))}
-          </tr>
         </tbody>
+         <tr>
+      <td colSpan="12" style={{ textAlign: "center", fontWeight: "bold", paddingTop: 10 }}>
+        Convenciones: → viene | ↑ inicia | ▲ cambia | ↓ susp
+      </td>
+    </tr>
       </table>
 
-      {/* === TABLA GLUCOMETRÍAS === */}
       <div style={{ overflowX: "auto" }}>
         <table className="hoja5-table gluco-table" border="1">
           <thead>
             <tr>
               <th></th>
-              {HORAS_GLUCO.map((hora) => (
-                <th key={hora}>{hora}</th>
-              ))}
+              {HORAS_GLUCO.map(hora => <th key={hora}>{hora}</th>)}
             </tr>
           </thead>
           <tbody>
-            <FilaGlucometria
-              label="Glucometría (mg/dL)"
-              campo="valor"
-              data={glucometrias}
-              onChange={handleGlucoChange}
-            />
-            <FilaGlucometria
-              label="Insulina (U)"
-              campo="insulina"
-              data={glucometrias}
-              onChange={handleGlucoChange}
-            />
+            <FilaGlucometria label="Glucometría (mg/dL)" campo="valor" data={glucometrias} onChange={handleGlucoChange} />
+            <FilaGlucometria label="Insulina (U)" campo="insulina" data={glucometrias} onChange={handleGlucoChange} />
           </tbody>
         </table>
       </div>
-      <InsumosForm />
+
+      <InsumosForm form={form} setForm={setForm} />
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 
-const TipoUci = ({ form, onChange }) => {
+const TipoUci = ({ form, onChange, camaId }) => {
   return (
     <>
       <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: 10 }}>
@@ -42,25 +42,26 @@ const TipoUci = ({ form, onChange }) => {
         </div>
       </div>
 
-      {/* EPS, cama */}
       <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: 10 }}>
-        <div style={{ flex: 1 }}>
-          <label>EPS:</label>
-          <input
-            name="eps"
-            value={form.eps || ''}
-            onChange={onChange}
-          />
-        </div>
-        <div style={{ flex: 1 }}>
-          <label>Cama:</label>
-          <input
-            name="cama"
-            value={form.cama || ''}
-            onChange={onChange}
-          />
-        </div>
-      </div>
+  <div style={{ flex: 1 }}>
+    <label>EPS:</label>
+    <input
+      name="eps"
+      value={form.eps || ''}
+      onChange={onChange}
+    />
+  </div>
+
+  <div style={{ flex: 1 }}>
+    <label>Cama:</label>
+    <input
+      name="cama"
+      value={form.cama || camaId || ''}
+     onChange={onChange}
+    />
+  </div>
+</div>
+
     </>
   );
 };

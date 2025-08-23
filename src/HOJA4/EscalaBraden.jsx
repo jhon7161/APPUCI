@@ -1,5 +1,5 @@
-// src/components/EscalaBraden.jsx
-import React, { useState } from "react";
+// src/HOJA4/EscalaBraden.jsx
+import React from "react";
 
 const condiciones = [
   {
@@ -71,38 +71,56 @@ const calcularClasificacion = (puntaje) => {
   return "Sin riesgo (≥17)";
 };
 
-const EscalaBraden = () => {
-  const [respuestas, setRespuestas] = useState({});
-  const [upp, setUpp] = useState([
+const EscalaBraden = ({ form, setForm }) => {
+  const braden = form.hoja4?.braden || {};
+  const respuestas = braden.respuestas || {};
+  const upp = braden.upp || [
     { derecha: "", izquierda: "" },
     { derecha: "", izquierda: "" },
     { derecha: "", izquierda: "" },
-  ]);
-  const [observaciones, setObservaciones] = useState("");
+  ];
+  const observaciones = braden.observaciones || "";
 
   const handleSelect = (condicionId, valor) => {
-    setRespuestas((prev) => ({
+    const nuevasRespuestas = { ...respuestas, [condicionId]: valor };
+    setForm(prev => ({
       ...prev,
-      [condicionId]: valor,
+      hoja4: {
+        ...prev.hoja4,
+        braden: { ...prev.hoja4?.braden, respuestas: nuevasRespuestas, upp, observaciones }
+      }
     }));
   };
 
   const handleUppChange = (index, lado, valor) => {
-    const newUpp = [...upp];
-    newUpp[index][lado] = valor;
-    setUpp(newUpp);
+    const nuevoUpp = upp.map((fila, i) => i === index ? { ...fila, [lado]: valor } : fila);
+    setForm(prev => ({
+      ...prev,
+      hoja4: {
+        ...prev.hoja4,
+        braden: { ...prev.hoja4?.braden, respuestas, upp: nuevoUpp, observaciones }
+      }
+    }));
+  };
+
+  const handleObservacionesChange = (valor) => {
+    setForm(prev => ({
+      ...prev,
+      hoja4: {
+        ...prev.hoja4,
+        braden: { ...prev.hoja4?.braden, respuestas, upp, observaciones: valor }
+      }
+    }));
   };
 
   const puntajeTotal = Object.values(respuestas).reduce(
-    (acc, val) => acc + val,
+    (acc, val) => acc + (parseInt(val) || 0),
     0
   );
-
   const clasificacion = calcularClasificacion(puntajeTotal);
 
   return (
     <div style={{ display: "flex", gap: "20px", padding: 20 }}>
-      {/* Escala de Braden */}
       <div style={{ flex: 2 }}>
         <h2 style={{ textAlign: "center", marginBottom: 14, fontSize: "20px" }}>
           ESCALA DE BRADEN PARA PREDECIR RIESGO DE UPP
@@ -132,8 +150,7 @@ const EscalaBraden = () => {
                     onClick={() => handleSelect(cond.id, idx + 1)}
                     style={{
                       cursor: "pointer",
-                      background:
-                        respuestas[cond.id] === idx + 1 ? "#d4edda" : "white",
+                      background: respuestas[cond.id] === idx + 1 ? "#d4edda" : "white",
                     }}
                   >
                     {op}
@@ -144,11 +161,7 @@ const EscalaBraden = () => {
           </tbody>
         </table>
 
-        {/* Bloque de UPP debajo */}
-        <h4 style={{ marginTop: 20 }}>
-          Sitio anatómico UPP IZQ o DER
-        </h4>
-
+        <h4 style={{ marginTop: 20 }}>Sitio anatómico UPP IZQ o DER</h4>
         <table
           border="1"
           cellPadding="1"
@@ -171,9 +184,7 @@ const EscalaBraden = () => {
                   <input
                     type="text"
                     value={fila.izquierda}
-                    onChange={(e) =>
-                      handleUppChange(i, "izquierda", e.target.value)
-                    }
+                    onChange={(e) => handleUppChange(i, "izquierda", e.target.value)}
                     style={{ width: "70px", margin: "0 5px" }}
                   /> )
                 </td>
@@ -188,12 +199,11 @@ const EscalaBraden = () => {
             rows="4"
             style={{ width: "100%", resize: "vertical" }}
             value={observaciones}
-            onChange={(e) => setObservaciones(e.target.value)}
+            onChange={(e) => handleObservacionesChange(e.target.value)}
           />
         </div>
       </div>
 
-      {/* Clasificación del riesgo */}
       <div style={{ flex: 1 }}>
         <h2 style={{ textAlign: "center", marginBottom: 20, fontSize: "20px" }}>
           CLASIFICACIÓN DEL RIESGO
@@ -226,9 +236,7 @@ const EscalaBraden = () => {
           </tbody>
         </table>
 
-        <h3 style={{ marginTop: 20 }}>
-          Puntuación total: {puntajeTotal}
-        </h3>
+        <h3 style={{ marginTop: 20 }}>Puntuación total: {puntajeTotal}</h3>
         <h3>Clasificación: {clasificacion}</h3>
       </div>
     </div>

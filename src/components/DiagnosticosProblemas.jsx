@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 
+
 const DiagnosticosProblemas = ({ form, setForm }) => {
   const [nuevoDiagnostico, setNuevoDiagnostico] = useState('');
   const [nuevoProblema, setNuevoProblema] = useState('');
 
-  // Agregar diagnóstico
   const agregarDiagnostico = () => {
     if (!nuevoDiagnostico.trim()) return;
     setForm(prev => ({
@@ -14,7 +14,6 @@ const DiagnosticosProblemas = ({ form, setForm }) => {
     setNuevoDiagnostico('');
   };
 
-  // Eliminar diagnóstico
   const eliminarDiagnostico = (index) => {
     setForm(prev => ({
       ...prev,
@@ -22,7 +21,6 @@ const DiagnosticosProblemas = ({ form, setForm }) => {
     }));
   };
 
-  // Agregar problema
   const agregarProblema = () => {
     if (!nuevoProblema.trim()) return;
     setForm(prev => ({
@@ -32,7 +30,6 @@ const DiagnosticosProblemas = ({ form, setForm }) => {
     setNuevoProblema('');
   };
 
-  // Eliminar problema
   const eliminarProblema = (index) => {
     setForm(prev => ({
       ...prev,
@@ -40,7 +37,6 @@ const DiagnosticosProblemas = ({ form, setForm }) => {
     }));
   };
 
-  // Cambiar enfermero jefe
   const handleEnfermeroChange = (turno, valor) => {
     setForm(prev => ({
       ...prev,
@@ -51,9 +47,9 @@ const DiagnosticosProblemas = ({ form, setForm }) => {
   return (
     <div className="formulario-paciente">
       {/* Diagnósticos */}
-      <fieldset>
+      <fieldset className="fieldset-custom">
         <legend>📋 Diagnósticos</legend>
-        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+        <div className="input-group">
           <input
             value={nuevoDiagnostico}
             onChange={(e) => setNuevoDiagnostico(e.target.value)}
@@ -61,7 +57,7 @@ const DiagnosticosProblemas = ({ form, setForm }) => {
           />
           <button type="button" onClick={agregarDiagnostico}>Agregar</button>
         </div>
-        <table className="tabla-limpia">
+        <table className="tabla">
           <thead>
             <tr>
               <th>#</th>
@@ -75,7 +71,7 @@ const DiagnosticosProblemas = ({ form, setForm }) => {
                 <td>{index + 1}</td>
                 <td>{diag}</td>
                 <td>
-                  <button type="button" onClick={() => eliminarDiagnostico(index)}>❌</button>
+                  <button className="btn-eliminar" onClick={() => eliminarDiagnostico(index)}>❌</button>
                 </td>
               </tr>
             ))}
@@ -84,9 +80,9 @@ const DiagnosticosProblemas = ({ form, setForm }) => {
       </fieldset>
 
       {/* Problemas */}
-      <fieldset style={{ marginTop: '1rem' }}>
+      <fieldset className="fieldset-custom" style={{ marginTop: '1rem' }}>
         <legend>⚠ Problemas</legend>
-        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+        <div className="input-group">
           <input
             value={nuevoProblema}
             onChange={(e) => setNuevoProblema(e.target.value)}
@@ -94,7 +90,7 @@ const DiagnosticosProblemas = ({ form, setForm }) => {
           />
           <button type="button" onClick={agregarProblema}>Agregar</button>
         </div>
-        <table className="tabla-limpia">
+        <table className="tabla">
           <thead>
             <tr>
               <th>#</th>
@@ -108,7 +104,7 @@ const DiagnosticosProblemas = ({ form, setForm }) => {
                 <td>{index + 1}</td>
                 <td>{prob}</td>
                 <td>
-                  <button type="button" onClick={() => eliminarProblema(index)}>❌</button>
+                  <button className="btn-eliminar" onClick={() => eliminarProblema(index)}>❌</button>
                 </td>
               </tr>
             ))}
@@ -117,30 +113,18 @@ const DiagnosticosProblemas = ({ form, setForm }) => {
       </fieldset>
 
       {/* Enfermero jefe */}
-      <fieldset style={{ marginTop: '1rem' }}>
+      <fieldset className="fieldset-custom" style={{ marginTop: '1rem' }}>
         <legend>👩‍⚕️ Enfermero Jefe</legend>
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <div>
-            <label>Mañana:</label>
-            <input
-              value={form.enfermeroJefe?.manana || ''}
-              onChange={(e) => handleEnfermeroChange('manana', e.target.value)}
-            />
-          </div>
-          <div>
-            <label>Tarde:</label>
-            <input
-              value={form.enfermeroJefe?.tarde || ''}
-              onChange={(e) => handleEnfermeroChange('tarde', e.target.value)}
-            />
-          </div>
-          <div>
-            <label>Noche:</label>
-            <input
-              value={form.enfermeroJefe?.noche || ''}
-              onChange={(e) => handleEnfermeroChange('noche', e.target.value)}
-            />
-          </div>
+        <div className="flex-gap">
+          {['manana','tarde','noche'].map((turno) => (
+            <div key={turno} className="form-group">
+              <label>{turno.charAt(0).toUpperCase() + turno.slice(1)}:</label>
+              <input
+                value={form.enfermeroJefe?.[turno] || ''}
+                onChange={(e) => handleEnfermeroChange(turno, e.target.value)}
+              />
+            </div>
+          ))}
         </div>
       </fieldset>
     </div>

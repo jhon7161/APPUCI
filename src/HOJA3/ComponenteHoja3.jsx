@@ -32,54 +32,40 @@ const ComponenteHoja3 = ({ form, setForm }) => {
     });
   };
 
-  // 🔹 Ajuste: columnas desde VRS hasta TAMAP con 5 caracteres
   const getInputStyle = (col) => {
     const columnas5 = ["VRS","IRVS","SCVO2","PCP","TAMAP"];
-    if (columnas5.includes(col)) {
-      return { width: "55px", textAlign: "center", maxLength: 5 };
-    }
+    if (columnas5.includes(col)) return { width: "55px", textAlign: "center", maxLength: 5 };
     return { width: "40px", textAlign: "center", maxLength: 3 };
   };
 
   return (
-    <div style={{ padding: 20 }}>
+    <div className="hoja3-container">
       <h3>Monitoría Hemodinámica - 24 horas</h3>
 
-      <button
-        type="button"
-        onClick={agregarColumna}
-        style={{ marginBottom: 10 }}
-      >
+      <button className="hoja3-add-column" type="button" onClick={agregarColumna}>
         + Agregar Columna
       </button>
 
-      <div style={{ overflowX: "auto" }}>
-        <table border="1" cellPadding="3" style={{ borderCollapse: "collapse", width: "100%" }}>
+      <div className="hoja3-table-wrapper">
+        <table className="hoja3-table">
           <thead>
-            <tr style={{ background: "#f0f0f0" }}>
+            <tr>
               <th>Hora</th>
-              {COLUMNAS_BASE.map((col) => (
-                <th key={col}>{col}</th>
-              ))}
-              {columnasExtras.map((col) => (
-                <th key={col}>{col}</th>
-              ))}
+              {COLUMNAS_BASE.map((col) => <th key={col}>{col}</th>)}
+              {columnasExtras.map((col) => <th key={col}>{col}</th>)}
             </tr>
           </thead>
           <tbody>
             {HORAS.map((hora, i) => (
               <tr key={hora}>
-                <td style={{ fontWeight: "bold", textAlign: "center" }}>{hora}</td>
+                <td style={{ fontWeight: "bold" }}>{hora}</td>
                 {COLUMNAS_BASE.map((col) => (
                   <td key={col}>
                     <input
                       type="text"
                       value={form.hoja3?.datos?.[i]?.[col] || ""}
                       onChange={(e) => handleChange(i, col, e.target.value)}
-                      style={{
-                        width: getInputStyle(col).width,
-                        textAlign: "center"
-                      }}
+                      style={{ width: getInputStyle(col).width, textAlign: "center" }}
                       maxLength={getInputStyle(col).maxLength}
                     />
                   </td>

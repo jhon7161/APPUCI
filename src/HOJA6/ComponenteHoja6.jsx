@@ -1,5 +1,4 @@
-// src/hoja6/ComponenteHoja6.jsx
-import React from 'react'
+import React, { useEffect } from 'react'
 import ComponenteGasesSanguineos from './ComponenteGasesSanguineos'
 import NeumoniaForm from './NeumoniaForm'
 import HojaPosiciones from './HojaPosiciones'
@@ -12,6 +11,32 @@ const ComponenteHoja6 = ({ form, setForm }) => {
     'CANULA', 'VENTURI'
   ]
 
+  // Inicializar hoja6.datos si no existe
+  useEffect(() => {
+    if (!form.hoja6) {
+      setForm(prev => ({
+        ...prev,
+        hoja6: {
+          datos: Array.from({ length: HORAS.length }, () =>
+            columnas.reduce((acc, col) => ({ ...acc, [col]: "" }), {})
+          ),
+          gases: [],
+          neumonia: {
+            NN: "",
+            NAC: "",
+            NAC_TR: "",
+            NAN: "",
+            NAN_TR: "",
+            NBA: "",
+            NBA_TR: "",
+            DIAS_VM: ""
+          },
+          terapeuta: ""
+        }
+      }))
+    }
+  }, [])
+
   const handleChange = (horaIdx, campo, valor) => {
     const nuevosDatos = [...form.hoja6.datos]
     nuevosDatos[horaIdx] = { ...nuevosDatos[horaIdx], [campo]: valor }
@@ -19,23 +44,14 @@ const ComponenteHoja6 = ({ form, setForm }) => {
   }
 
   return (
-    <div style={{ overflowX: 'auto' }}>
+    <div className="hoja6-wrapper">
       <h3>Hoja 6 - Ventilación y Oxigenoterapia</h3>
-      <table border="1" style={{ width: '100%', borderCollapse: 'collapse', fontSize: 10 }}>
+      <table className="hoja6-table">
         <thead>
           <tr>
             <th>HORA</th>
             {columnas.map(col => (
-              <th
-                key={col}
-                style={{
-                  writingMode: 'vertical-rl',
-                  transform: 'rotate(180deg)',
-                  whiteSpace: 'nowrap',
-                  padding: '5px',
-                  fontWeight: 'bold'
-                }}
-              >
+              <th key={col} style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>
                 {col}
               </th>
             ))}
@@ -44,14 +60,13 @@ const ComponenteHoja6 = ({ form, setForm }) => {
         <tbody>
           {HORAS.map((hora, idx) => (
             <tr key={idx}>
-              <td style={{ textAlign: 'center' }}>{hora}</td>
+              <td>{hora}</td>
               {columnas.map(col => (
                 <td key={col}>
                   <input
                     type="text"
                     value={form.hoja6.datos[idx]?.[col] || ''}
                     onChange={e => handleChange(idx, col, e.target.value)}
-                    style={{ width: '49px', fontSize: 12 }}
                   />
                 </td>
               ))}
@@ -59,11 +74,14 @@ const ComponenteHoja6 = ({ form, setForm }) => {
           ))}
         </tbody>
       </table>
+
       <div style={{ marginTop: 30 }}>
         <ComponenteGasesSanguineos form={form} setForm={setForm} />
       </div>
-      <NeumoniaForm />
-      <HojaPosiciones/>
+
+      <NeumoniaForm form={form} setForm={setForm} /> {/* PASAMOS form y setForm */}
+
+      <HojaPosiciones form={form} setForm={setForm} />
     </div>
   )
 }

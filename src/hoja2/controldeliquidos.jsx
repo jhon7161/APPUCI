@@ -1,4 +1,3 @@
-// src/components/hoja2/ComponenteHoja2.jsx
 import React, { useEffect, useMemo, useCallback } from "react";
 import { HORAS, initHoja2, toNum, nuevaColAdmin, nuevaColElim } from "./componenteshoja2/helpers";
 import Hoja2Table from "./componenteshoja2/Hoja2Table";
@@ -54,32 +53,32 @@ const ComponenteHoja2 = ({ form, setForm }) => {
       <h3 style={{ margin: "6px 0", textAlign: "center" }}>💧 Control de Líquidos (07:00 → 06:00)</h3>
 
       <Hoja2Table
-        administrados={administrados}
-        eliminados={eliminados}
-        totalAdminHora={totalAdminHora}
-        acumAdmin={acumAdmin}
-        diuresisHora={diuresisHora}
-        diuresisAcum={diuresisAcum}
-        totalElimHora={totalElimHora}
-        acumElim={acumElim}
-        balanceAcum={balanceAcum}
-        guPorHora={guPorHora}
-        onNombreAdmin={cambiarNombreAdmin}
-        onDosisAdmin={cambiarDosisAdmin}
-        onDiuresisHora={cambiarDiuresisHora}
-        onNombreElim={cambiarNombreOtroElim}
-        onValorElim={cambiarValorOtroElim}
-      />
+    className="hoja2-table"
+    administrados={administrados}
+    eliminados={eliminados}
+    totalAdminHora={totalAdminHora}
+    acumAdmin={acumAdmin}
+    diuresisHora={diuresisHora}
+    diuresisAcum={diuresisAcum}
+    totalElimHora={totalElimHora}
+    acumElim={acumElim}
+    balanceAcum={balanceAcum}
+    guPorHora={guPorHora}
+    onNombreAdmin={cambiarNombreAdmin}
+    onDosisAdmin={cambiarDosisAdmin}
+    onDiuresisHora={cambiarDiuresisHora}
+    onNombreElim={cambiarNombreOtroElim}
+    onValorElim={cambiarValorOtroElim}
+  />
 
-      <div style={{ marginTop: 8, display: "flex", gap: 8, flexWrap: "wrap" }}>
-        <button type="button" onClick={agregarMedicamento}>➕ Agregar Medicamento</button>
-        <button type="button" onClick={agregarEliminado}>➕ Agregar Eliminación</button>
-      </div>
+  <div className="hoja2-buttons">
+    <button type="button" onClick={agregarMedicamento}>➕ Agregar Medicamento</button>
+    <button type="button" onClick={agregarEliminado}>➕ Agregar Eliminación</button>
+  </div>
 
-      <Hoja2Balances totales24h={totales24h} gu24h={gu24h} />
-
-      <AuxiliaresEnfermeria form={form} setForm={setForm} />
-    </div>
+  <Hoja2Balances totales24h={totales24h} gu24h={gu24h} />
+  <AuxiliaresEnfermeria form={form} setForm={setForm} />
+</div>
   );
 };
 

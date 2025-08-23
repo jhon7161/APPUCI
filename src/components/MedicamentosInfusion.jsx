@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 
+
 const MedicamentosInfusion = ({ form, setForm }) => {
   const [nuevoMedInfusion, setNuevoMedInfusion] = useState({ nombre: '', dosis: '' });
 
@@ -29,7 +30,6 @@ const MedicamentosInfusion = ({ form, setForm }) => {
         <input
           type="text"
           placeholder="Nombre del medicamento"
-          name="nombre"
           value={nuevoMedInfusion.nombre}
           onChange={(e) =>
             setNuevoMedInfusion({ ...nuevoMedInfusion, nombre: e.target.value })
@@ -38,19 +38,15 @@ const MedicamentosInfusion = ({ form, setForm }) => {
         <input
           type="text"
           placeholder="Dosis (ej: 20 mg/hora)"
-          name="dosis"
           value={nuevoMedInfusion.dosis}
           onChange={(e) =>
             setNuevoMedInfusion({ ...nuevoMedInfusion, dosis: e.target.value })
           }
         />
-        <button type="button" onClick={agregarMedicamento}>
-          Agregar
-        </button>
+        <button type="button" onClick={agregarMedicamento}>Agregar</button>
       </div>
 
-      {/* Tabla en lugar de lista */}
-      <table className="tabla-limpia" style={{ marginTop: '1rem' }}>
+      <table className="tabla" style={{ marginTop: '1rem' }}>
         <thead>
           <tr>
             <th>#</th>
@@ -66,7 +62,7 @@ const MedicamentosInfusion = ({ form, setForm }) => {
               <td>{med.nombre}</td>
               <td>{med.dosis}</td>
               <td>
-                <button type="button" onClick={() => eliminarMedicamento(idx)}>❌</button>
+                <button className="btn-eliminar" onClick={() => eliminarMedicamento(idx)}>❌</button>
               </td>
             </tr>
           ))}
