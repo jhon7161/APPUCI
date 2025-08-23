@@ -1,5 +1,7 @@
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { useState, useEffect, useCallback } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+
 import {
   agregarPaciente as agregarPacienteStore,
   actualizarPacienteStore
@@ -9,6 +11,7 @@ import {
   agregarPaciente,
   actualizarPaciente
 } from '../services/pacienteService'
+
 import DatosBasicos from './DatosBasicos'
 import FechasEstancia from './FechasEstancia'
 import TipoUci from './TipoUci'
@@ -17,13 +20,21 @@ import LaboratoriosEstudios from './LaboratoriosEstudios'
 import MedicamentosInfusion from './MedicamentosInfusion'
 import MedicamentosHorarios from './MedicamentosHorarios'
 import DosisUnica from './DosisUnica'
-import { notifyWithTimeout } from '../reducers/notificationReducer'
-import '../index.css';
 
+
+// 🔹 Aquí importas los componentes de las hojas extra
+import ComponenteHoja2 from '../hoja2/controldeliquidos'
+import ComponenteHoja3 from '../HOJA3/ComponenteHoja3'
+import ComponenteHoja4 from '../HOJA4/ComponenteHoja4'
+import ComponenteHoja5 from '../hoja5/ComponenteHoja5'
+import ComponenteHoja6 from '../HOJA6/ComponenteHoja6'
+
+import { notifyWithTimeout } from '../reducers/notificationReducer'
+import '../index.css'
 
 const fechaHoyISO = () => new Date().toISOString().split('T')[0]
 
-const getFormInicial = () => ({
+const getFormInicial = (camaId = '') => ({
   nombre: '',
   apellido: '',
   edad: '',
@@ -36,13 +47,14 @@ const getFormInicial = () => ({
   peso: '',
   talla: '',
   eps: '',
-  cama: '',
+  cama: camaId,
   fechaIngreso: '',
   fechaActual: fechaHoyISO(),
   diasEstancia: '',
   diagnosticos: [],
   problemas: '',
   enfermeroJefe: { manana: '', tarde: '', noche: '' },
+  auxiliarEnfermeria: { manana: '', tarde: '', noche: '' },
   hb: '', hto: '', leuc: '', neut: '', linf: '', cay: '', plaq: '',
   bun: '', creat: '', glicemia: '',
   na: '', k: '', cl: '', ca: '', mg: '',
@@ -50,8 +62,24 @@ const getFormInicial = () => ({
   rx: '', cultivos: '', hemo: '', uro: '', ekg: '', pdeo: '',
   medicamentosInfusion: [],
   medicamentosHorarios: [],
-  dosisUnica: []
+  dosisUnica: [],
+  hoja2: {
+    administrados: Array.from({ length: 4 }, () => ({ nombre: '', dosis: Array(24).fill('') })),
+    eliminados: {
+      diuresisHora: Array(24).fill(''),
+      otros: [
+        { nombre: '', valores: Array(24).fill('') },
+        { nombre: '', valores: Array(24).fill('') }
+      ]
+    }
+  },
+
+  hoja3: { datos: Array(24).fill({}) },
+  hoja4: { datos: Array(24).fill({}) },
+  hoja5: { datos: Array(24).fill({}) },
+  hoja6: { datos: Array(24).fill({}) },
 })
+
 
 const calcularSC = (peso, tallaMetros) => {
   const p = parseFloat(peso)
@@ -69,28 +97,32 @@ const calcularDiasEstancia = (fechaIngreso, fechaActual) => {
 
 const PacienteForm = ({ pacienteCargado }) => {
   const dispatch = useDispatch()
-  // pacientes no se usa en tu código, podrías eliminarlo para limpiar
-  // const pacientes = useSelector(state => state.pacientes)
+  const navigate = useNavigate()
+  const { camaId } = useParams()
 
   const [historiaClinica, setHistoriaClinica] = useState('')
-  const [form, setForm] = useState(getFormInicial())
+  const [form, setForm] = useState(getFormInicial(camaId))
   const [modoEdicion, setModoEdicion] = useState(false)
   const [pacienteExistenteId, setPacienteExistenteId] = useState(null)
 
-  // Cargar paciente pasado desde el padre
+  const [pagina, setPagina] = useState(1)
+
   useEffect(() => {
     if (pacienteCargado) {
-      setForm(prev => ({ ...getFormInicial(), ...pacienteCargado }))
+      setForm(prev => ({
+        ...getFormInicial(camaId),
+        ...pacienteCargado,
+        cama: camaId
+      }))
       setModoEdicion(true)
       setPacienteExistenteId(pacienteCargado.id ?? null)
       setHistoriaClinica(pacienteCargado.historiaClinica ?? '')
     }
-  }, [pacienteCargado])
+  }, [pacienteCargado, camaId])
 
-  // Cargar paciente al cambiar historiaClinica o fechaActual
   useEffect(() => {
     if (!historiaClinica.trim()) {
-      setForm(getFormInicial())
+      setForm(getFormInicial(camaId))
       setPacienteExistenteId(null)
       setModoEdicion(false)
       return
@@ -100,24 +132,25 @@ const PacienteForm = ({ pacienteCargado }) => {
       try {
         const pacientesPorHistoria = await getPacientePorHistoria(historiaClinica)
         if (pacientesPorHistoria.length === 0) {
-          setForm(prev => ({ ...getFormInicial(), historiaClinica }))
+          setForm(prev => ({
+            ...getFormInicial(camaId),
+            historiaClinica
+          }))
           setPacienteExistenteId(null)
           setModoEdicion(false)
           return
         }
 
-        // Buscar registro para la fechaActual exacta
         const registroActual = pacientesPorHistoria.find(p => p.fechaActual === form.fechaActual)
 
         if (registroActual) {
-          setForm({ ...getFormInicial(), ...registroActual }) // evito undefined
+          setForm({ ...getFormInicial(camaId), ...registroActual, cama: camaId })
           setPacienteExistenteId(registroActual.id)
           setModoEdicion(true)
         } else {
-          // Si no hay registro para la fecha, precargo datos base para nuevo registro
           const ultimo = pacientesPorHistoria[0]
           const base = {
-            ...getFormInicial(),
+            ...getFormInicial(camaId),
             nombre: ultimo.nombre,
             apellido: ultimo.apellido,
             edad: ultimo.edad,
@@ -127,7 +160,8 @@ const PacienteForm = ({ pacienteCargado }) => {
             peso: ultimo.peso,
             historiaClinica,
             fechaIngreso: ultimo.fechaIngreso,
-            fechaActual: form.fechaActual
+            fechaActual: form.fechaActual,
+            cama: camaId
           }
 
           base.sc = calcularSC(base.peso, base.talla)
@@ -143,48 +177,34 @@ const PacienteForm = ({ pacienteCargado }) => {
     }
 
     fetchPaciente()
-  }, [historiaClinica, form.fechaActual])
+  }, [historiaClinica, form.fechaActual, camaId])
 
-  // Maneja cambio en inputs del form
   const handleChange = useCallback(e => {
     const { name, value } = e.target
-
     setForm(prev => {
       const actualizado = { ...prev, [name]: value }
 
-      // Actualiza SC si cambia peso o talla
       if (name === 'peso' || name === 'talla') {
         actualizado.sc = calcularSC(actualizado.peso, actualizado.talla)
       }
-
-      // Actualiza días estancia si cambia fechaIngreso o fechaActual
       if (name === 'fechaIngreso' || name === 'fechaActual') {
         actualizado.diasEstancia = calcularDiasEstancia(
           name === 'fechaIngreso' ? value : prev.fechaIngreso,
           name === 'fechaActual' ? value : prev.fechaActual
         )
       }
-
       return actualizado
     })
   }, [])
 
-  // Maneja cambio de historia clinica de forma controlada
   const handleChangeHistoria = e => {
     const valor = e.target.value
     setHistoriaClinica(valor)
-
-    if (!valor.trim()) {
-      setForm(getFormInicial())
-    } else {
-      setForm(prev => ({ ...prev, historiaClinica: valor }))
-    }
+    setForm(prev => ({ ...prev, historiaClinica: valor }))
   }
 
-  // Guardar o actualizar paciente
   const handleSubmit = async e => {
     e.preventDefault()
-
     try {
       if (modoEdicion && pacienteExistenteId) {
         const actualizado = await actualizarPaciente(pacienteExistenteId, form)
@@ -195,55 +215,98 @@ const PacienteForm = ({ pacienteCargado }) => {
         dispatch(agregarPacienteStore(nuevo))
         dispatch(notifyWithTimeout('Paciente registrado', 3000))
       }
-
-      setForm(prev => ({ ...getFormInicial(), historiaClinica: prev.historiaClinica }))
-      setModoEdicion(false)
-      setPacienteExistenteId(null)
     } catch (err) {
       console.error('Error al guardar:', err)
       dispatch(notifyWithTimeout('Ocurrió un error al guardar el registro.', 3000))
     }
   }
 
+  const NavHojas = () => (
+    <div style={{
+      display: 'flex', gap: 8, flexWrap: 'wrap', margin: '16px 0'
+    }}>
+      {[1, 2, 3, 4, 5, 6].map(n => (
+        <button
+          key={n}
+          type="button"
+          onClick={() => setPagina(n)}
+          style={{
+            padding: '6px 10px',
+            borderRadius: 8,
+            border: '1px solid #007bff',
+            background: pagina === n ? '#007bff' : 'white',
+            color: pagina === n ? 'white' : '#007bff',
+            cursor: 'pointer'
+          }}
+        >
+          {`Hoja ${n}`}
+        </button>
+      ))}
+    </div>
+  )
+
   return (
-    <form
-  onSubmit={handleSubmit}
-  className="formulario-paciente"
->
-  {/* Encabezado */}
-  <div className="form-header">
-    <div className="header-left">Clínica</div>
-    <div className="header-center">UNIDAD DE CUIDADOS INTENSIVOS</div>
-    <div className="header-right">Código versión actualizada</div>
-  </div>
+    <form onSubmit={handleSubmit} className="formulario-paciente">
+      <div className="form-header">
+        <div className="header-left">Clínica</div>
+        <div className="header-center">UNIDAD DE CUIDADOS INTENSIVOS</div>
+        <div className="header-right">Código versión actualizada</div>
+      </div>
 
-  <h2>{modoEdicion ? 'Editar paciente del día' : 'Nuevo registro diario de paciente'}</h2>
+      <h2>{modoEdicion ? 'Editar paciente del día' : `Nuevo registro - Cama ${camaId}`}</h2>
 
-  <div>
-    <label htmlFor="historiaClinica">Historia Clínica:</label>
-    <input
-      id="historiaClinica"
-      name="historiaClinica"
-      value={historiaClinica}
-      onChange={handleChangeHistoria}
-      required
-      placeholder="Ingrese número de historia clínica"
-      autoComplete="off"
-    />
-  </div>
-      <DatosBasicos form={form} onChange={handleChange} />
-      <TipoUci form={form} onChange={handleChange} />
-      <FechasEstancia form={form} onChange={handleChange} />
+      <div>
+        <label htmlFor="historiaClinica">Historia Clínica:</label>
+        <input
+          id="historiaClinica"
+          name="historiaClinica"
+          value={historiaClinica}
+          onChange={handleChangeHistoria}
+          required
+          placeholder="Ingrese número de historia clínica"
+          autoComplete="off"
+        />
+      </div>
 
-      <DiagnosticosProblemas form={form} setForm={setForm} />
-      <LaboratoriosEstudios form={form} setForm={setForm} />
-      <MedicamentosInfusion form={form} setForm={setForm} />
-      <MedicamentosHorarios form={form} setForm={setForm} />
-      <DosisUnica form={form} setForm={setForm} />
+      <NavHojas />
 
-      <button type="submit" style={{ marginTop: 20 }}>
-        {modoEdicion ? 'Actualizar' : 'Guardar'}
-      </button>
+      {pagina === 1 && (
+        <>
+          <DatosBasicos form={form} onChange={handleChange} />
+          <TipoUci form={form} onChange={handleChange} />
+          <FechasEstancia form={form} onChange={handleChange} />
+          <DiagnosticosProblemas form={form} setForm={setForm} />
+          <LaboratoriosEstudios form={form} setForm={setForm} />
+          <MedicamentosInfusion form={form} setForm={setForm} />
+          <MedicamentosHorarios form={form} setForm={setForm} />
+          <DosisUnica form={form} setForm={setForm} />
+        </>
+      )}
+
+      {pagina === 2 && <ComponenteHoja2 form={form} setForm={setForm} />}
+      {pagina === 3 && <ComponenteHoja3 form={form} setForm={setForm} />}
+      {pagina === 4 && <ComponenteHoja4 form={form} setForm={setForm} />}
+      {pagina === 5 && <ComponenteHoja5 form={form} setForm={setForm} />}
+      {pagina === 6 && <ComponenteHoja6 form={form} setForm={setForm} />}
+
+      <div style={{ marginTop: 20, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+        {pagina > 1 && (
+          <button type="button" onClick={() => setPagina(p => p - 1)}>
+            Anterior
+          </button>
+        )}
+        {pagina < 6 && (
+          <button type="button" onClick={() => setPagina(p => p + 1)}>
+            Siguiente
+          </button>
+        )}
+        <button type="submit">
+          {modoEdicion ? 'Actualizar' : 'Guardar'}
+        </button>
+        <button type="button" onClick={() => navigate('/')} style={{ marginLeft: 10 }}>
+          Volver
+        </button>
+      </div>
     </form>
   )
 }

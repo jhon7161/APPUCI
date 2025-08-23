@@ -1,0 +1,49 @@
+.hoja5-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 12px;
+  text-align: center;
+}
+
+.hoja5-table th,
+.hoja5-table td {
+  border: 1px solid black;
+  padding: 4px;
+  vertical-align: middle;
+}
+
+.hoja5-table thead th {
+  background-color: #e5e5e5; /* gris claro */
+  font-weight: bold;
+}
+
+.hoja5-table tbody tr:nth-child(even) {
+  background-color: #fafafa; /* filas alternas */
+}
+
+.hoja5-title {
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+  margin: 12px 0;
+  text-transform: uppercase;
+}
+/* hoja5.css */
+.gluco-table {
+  font-size: 12px;       /* texto más pequeño */
+  width: auto;           /* evita que se estire al 100% */
+}
+
+.gluco-table th,
+.gluco-table td {
+  padding: 2px 2px;      /* menos espacio interno */
+  text-align: center;
+  min-width: 30px;       /* ancho mínimo para que se vea el input */
+}
+
+.gluco-table input {
+  width: 30px;           /* más pequeño pero usable */
+  font-size: 11px;
+  padding: 1px;
+  text-align: center;
+}

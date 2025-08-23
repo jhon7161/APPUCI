@@ -1,0 +1,25 @@
+.rass-container {
+  margin: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.titulo {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.rass-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.rass-table th,
+.rass-table td {
+  border: 1px solid #000;
+  padding: 8px;
+}
+
+.rass-table th {
+  background-color: #f2f2f2;
+}
