@@ -211,13 +211,12 @@ const ComponenteHoja5 = ({ form, setForm }) => {
       <td colSpan="12" style={{ textAlign: "center", fontWeight: "bold", paddingTop: 10 }}>
         Convenciones: → viene | ↑ inicia | ▲ cambia | ↓ susp
       </td>
-    </tr>
-      </table>
-
-      <div style={{ overflowX: "auto" }}>
-        <table className="hoja5-table gluco-table" border="1">
-          <thead>
-            <tr>
+             </tr>
+            </table>
+            <div style={{ overflowX: "auto" }}>
+            <table className="hoja5-table gluco-table" border="1">
+            <thead>
+             <tr>
               <th></th>
               {HORAS_GLUCO.map(hora => <th key={hora}>{hora}</th>)}
             </tr>

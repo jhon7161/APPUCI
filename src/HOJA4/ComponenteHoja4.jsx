@@ -48,9 +48,9 @@ const Hoja4 = ({ form, setForm }) => {
           </tr>
         </thead>
         <tbody>
-          {form.hoja4.datos.map((row, index) => (
-            <tr key={row.hora}>
-              <td>{row.hora}</td>
+        {form.hoja4.datos.map((row, index) => (
+        <tr key={`${row.hora}-${index}`}>
+         <td>{row.hora}</td>
 
               <td>
                 <select value={row.rass} onChange={e => handleChange(index,'rass',e.target.value)} style={inputStyle}>

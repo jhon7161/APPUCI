@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const baseUrl = 'http://localhost:3001/pacientes'
+const baseUrl = 'http://localhost:3002/pacientes'
 
 export const getTodosPacientes = () =>
   axios.get(baseUrl).then(res => res.data)
